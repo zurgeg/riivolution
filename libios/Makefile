@@ -25,14 +25,14 @@ ifneq (,$(findstring NT,$(UNAME)))
 	AR			:= $(PREFIX)ar.exe
 	OBJCOPY		:= $(PREFIX)objcopy.exe
 	LD			:= $(PREFIX)g++.exe
-	AS			:= $(PREFIX)g++.exe
+	AS			:= $(PREFIX)as.exe
 endif
 CC			?= $(PREFIX)gcc
 CXX			?= $(PREFIX)g++
 AR			?= $(PREFIX)ar
 OBJCOPY		?= $(PREFIX)objcopy
 LD			?= $(PREFIX)g++
-AS			?= $(PREFIX)g++
+AS			?= $(PREFIX)as
 
 #---------------------------------------------------------------------------------
 # linker script
@@ -89,10 +89,10 @@ CFLAGS	=	-g $(ARCH) $(INCLUDE) -fno-strict-aliasing -Wall -O2 -fomit-frame-point
 			-Wpointer-arith -Winline -Wundef -g -ffunction-sections -fdata-sections -fno-exceptions
 
 CPPFLAGS	=	-g $(ARCH) $(INCLUDE) -fno-strict-aliasing -Wall -O2 -fomit-frame-pointer -ffast-math -fverbose-asm \
-			-Wpointer-arith -Winline -Wundef -g -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fpermissive
+			-Wpointer-arith -Winline -Wundef -g -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fpermissive -Wfatal-error
 
 
-AFLAGS	=	-g $(ARCH) -x assembler-with-cpp
+AFLAGS	=	-g $(ARCH)
 
 $(OUTPUT).a: $(OFILES)
 	@echo linking $(notdir $@)
