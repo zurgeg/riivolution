@@ -53,7 +53,7 @@ GuiImage::GuiImage(u8 * img, int w, int h)
 
 GuiImage::GuiImage(int w, int h, GXColor c)
 {
-	image = (u8 *)memalign (32, w * h * 4);
+	image = (u8 *)memalign (32, w * h << 2);
 	width = w;
 	height = h;
 	imageangle = 0;
@@ -66,14 +66,14 @@ GuiImage::GuiImage(int w, int h, GXColor c)
 
 	int x, y;
 
-	for(y=0; y < h; y++)
+	for(y=0; y < h; ++y)
 	{
-		for(x=0; x < w; x++)
+		for(x=0; x < w; ++x)
 		{
 			this->SetPixel(x, y, c);
 		}
 	}
-	int len = w*h*4;
+	int len = w * h << 2;
 	if(len%32) len += (32-len%32);
 	DCFlushRange(image, len);
 }
@@ -83,7 +83,7 @@ GuiImage::GuiImage(int w, int h, GXColor c)
  */
 GuiImage::~GuiImage()
 {
-	if(imgType == IMAGE_COLOR)
+	if(imgType == IMAGE_COLOR && image)
 		free(image);
 }
 
@@ -126,10 +126,10 @@ void GuiImage::SetTile(int t)
 
 GXColor GuiImage::GetPixel(int x, int y)
 {
-	if(!image || GetWidth() <= 0 || x < 0 || y < 0 || x > GetWidth() || y > GetHeight())
+	if(!image || this->GetWidth() <= 0 || x < 0 || y < 0)
 		return (GXColor){0, 0, 0, 0};
 
-	u32 offset = (((y >> 2)<<4)*GetWidth()) + ((x >> 2)<<6) + (((y%4 << 2) + x%4 ) << 1);
+	u32 offset = (((y >> 2)<<4)*this->GetWidth()) + ((x >> 2)<<6) + (((y%4 << 2) + x%4 ) << 1);
 	GXColor color;
 	color.a = *(image+offset);
 	color.r = *(image+offset+1);
@@ -140,10 +140,10 @@ GXColor GuiImage::GetPixel(int x, int y)
 
 void GuiImage::SetPixel(int x, int y, GXColor color)
 {
-	if(!image || GetWidth() <= 0 || x < 0 || y < 0 || x > GetWidth() || y > GetHeight())
+	if(!image || this->GetWidth() <= 0 || x < 0 || y < 0)
 		return;
 
-	u32 offset = (((y >> 2)<<4)*GetWidth()) + ((x >> 2)<<6) + (((y%4 << 2) + x%4 ) << 1);
+	u32 offset = (((y >> 2)<<4)*this->GetWidth()) + ((x >> 2)<<6) + (((y%4 << 2) + x%4 ) << 1);
 	*(image+offset) = color.a;
 	*(image+offset+1) = color.r;
 	*(image+offset+32) = color.g;
@@ -157,21 +157,24 @@ void GuiImage::SetStripe(int s)
 
 void GuiImage::ColorStripe(int shift)
 {
-	int x, y;
 	GXColor color;
+	int x, y=0;
 	int alt = 0;
+	
+	int thisHeight =  this->GetHeight();
+	int thisWidth =  this->GetWidth();
 
-	for(y=0; y < this->GetHeight(); y++)
+	for(; y < thisHeight; ++y)
 	{
 		if(y % 3 == 0)
 			alt ^= 1;
 
-		for(x=0; x < this->GetWidth(); x++)
+		if(alt)
 		{
-			color = GetPixel(x, y);
-
-			if(alt)
+			for(x=0; x < thisWidth; ++x)
 			{
+				color = GetPixel(x, y);
+
 				if(color.r < 255-shift)
 					color.r += shift;
 				else
@@ -186,9 +189,15 @@ void GuiImage::ColorStripe(int shift)
 					color.b = 255;
 
 				color.a = 255;
+				SetPixel(x, y, color);
 			}
-			else
+		}
+		else
+		{
+			for(x=0; x < thisWidth; ++x)
 			{
+				color = GetPixel(x, y);
+
 				if(color.r > shift)
 					color.r -= shift;
 				else
@@ -203,40 +212,10 @@ void GuiImage::ColorStripe(int shift)
 					color.b = 0;
 
 				color.a = 255;
+				SetPixel(x, y, color);
 			}
-			SetPixel(x, y, color);
 		}
 	}
-	int len = width*height*4;
-	if(len%32) len += (32-len%32);
-	DCFlushRange(image, len);
-}
-
-void GuiImage::Grayscale()
-{
-	GXColor color;
-	u32 offset, gray;
-
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			offset = (((y >> 2) << 4) * this->GetWidth()) + ((x >> 2) << 6)
-					+ (((y % 4 << 2) + x % 4) << 1);
-			color.r = *(image + offset + 1);
-			color.g = *(image + offset + 32);
-			color.b = *(image + offset + 33);
-
-			gray = (77 * color.r + 150 * color.g + 28 * color.b) / 255;
-
-			*(image + offset + 1) = gray;
-			*(image + offset + 32) = gray;
-			*(image + offset + 33) = gray;
-		}
-	}
-	int len = width*height*4;
-	if(len%32) len += (32-len%32);
-	DCFlushRange(image, len);
 }
 
 /**
@@ -244,29 +223,33 @@ void GuiImage::Grayscale()
  */
 void GuiImage::Draw()
 {
-	if(!image || !IsVisible() || tile == 0)
+	if(!image || !this->IsVisible() || tile == 0)
 		return;
 
-	float currScale = GetScale();
-	int currLeft = GetLeft();
+	float currScaleX = this->GetScaleX();
+	float currScaleY = this->GetScaleY();
+	int currLeft = this->GetLeft();
+	int thisTop = this->GetTop();
 
 	if(tile > 0)
 	{
-		for(int i=0; i<tile; i++)
-			Menu_DrawImg(currLeft+width*i, GetTop(), width, height, image, imageangle, currScale, currScale, GetAlpha());
+		int alpha = this->GetAlpha();
+		for(int i=0; i<tile; ++i)
+		{
+			Menu_DrawImg(currLeft+width*i, thisTop, width, height, image, imageangle, currScaleX, currScaleY, alpha);
+		}
 	}
 	else
 	{
-		// temporary (maybe), used to correct offset for scaled images
-		if(scale != 1)
-			currLeft = currLeft - width/2 + (width*scale)/2;
-
-		Menu_DrawImg(currLeft, GetTop(), width, height, image, imageangle, currScale, currScale, GetAlpha());
+		Menu_DrawImg(currLeft, thisTop, width, height, image, imageangle, currScaleX, currScaleY, this->GetAlpha());
 	}
 
 	if(stripe > 0)
-		for(int y=0; y < GetHeight(); y+=6)
-			Menu_DrawRectangle(currLeft,GetTop()+y,GetWidth(),3,(GXColor){0, 0, 0, stripe},1);
-
-	UpdateEffects();
+	{
+		int thisHeight = this->GetHeight();
+		int thisWidth = this->GetWidth();
+		for(int y=0; y < thisHeight; y+=6)
+			Menu_DrawRectangle(currLeft,thisTop+y,thisWidth,3,(GXColor){0, 0, 0, stripe},1);
+	}
+	this->UpdateEffects();
 }

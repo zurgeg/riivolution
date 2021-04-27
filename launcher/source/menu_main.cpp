@@ -353,6 +353,12 @@ struct PageViewer {
 	CheckShutdown(); \
 }
 
+const char * int_to_char(int number){
+        char* bufferlol;
+	sprintf(bufferlol, "%d", number);
+	return (const char *)bufferlol;
+}
+
 Menus::Enum MenuMount()
 {
 	HaltGui();
@@ -438,7 +444,7 @@ Menus::Enum MenuInit()
 	ParseConfigXMLs(&Disc);
 
 	Launcher_RVL();
-	HaltGui(); Title->SetText(Launcher_GetGameNameWide()); ResumeGui();
+	HaltGui(); Title->SetText(int_to_char((int)Launcher_GetGameNameWide())); ResumeGui();
 
 #if 0
 	// TODO: Put this somewhere sensible, make auto-launching happen without showing the GUI
@@ -507,7 +513,7 @@ Menus::Enum MenuMain()
 	}
 
 	HaltGui();
-	Title->SetText(Launcher_GetGameNameWide());
+	Title->SetText(int_to_char((int)Launcher_GetGameNameWide()));
 	ButtonList buttons(Window, 3);
 	buttons.SetButton(0, "Exit", ButtonList::ExitImage);
 	buttons.GetButton(0)->SetTrigger(&Trigger[Triggers::Home]);

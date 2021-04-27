@@ -26,6 +26,8 @@ GuiOptionBrowser::GuiOptionBrowser(int w, int h, OptionList * l)
 
 	trigA = new GuiTrigger;
 	trigA->SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+	trig2 = new GuiTrigger;
+	trig2->SetSimpleTrigger(-1, WPAD_BUTTON_2, 0);
 
 	btnSoundOver = new GuiSound(button_over_pcm, button_over_pcm_size, SOUND_PCM);
 	btnSoundClick = new GuiSound(button_click_pcm, button_click_pcm_size, SOUND_PCM);
@@ -74,11 +76,11 @@ GuiOptionBrowser::GuiOptionBrowser(int w, int h, OptionList * l)
 
 	for(int i=0; i<PAGESIZE; i++)
 	{
-		optionTxt[i] = new GuiText((char*)NULL, 20, (GXColor){0, 0, 0, 0xff});
+		optionTxt[i] = new GuiText(NULL, 20, (GXColor){0, 0, 0, 0xff});
 		optionTxt[i]->SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
 		optionTxt[i]->SetPosition(8,0);
 
-		optionVal[i] = new GuiText((char*)NULL, 20, (GXColor){0, 0, 0, 0xff});
+		optionVal[i] = new GuiText(NULL, 20, (GXColor){0, 0, 0, 0xff});
 		optionVal[i]->SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
 		optionVal[i]->SetPosition(250,0);
 
@@ -91,6 +93,7 @@ GuiOptionBrowser::GuiOptionBrowser(int w, int h, OptionList * l)
 		optionBtn[i]->SetImageOver(optionBg[i]);
 		optionBtn[i]->SetPosition(2,30*i+3);
 		optionBtn[i]->SetTrigger(trigA);
+		optionBtn[i]->SetTrigger(trig2);
 		optionBtn[i]->SetSoundClick(btnSoundClick);
 	}
 }
@@ -119,6 +122,7 @@ GuiOptionBrowser::~GuiOptionBrowser()
 	delete arrowUpOver;
 
 	delete trigA;
+	delete trig2;
 	delete btnSoundOver;
 	delete btnSoundClick;
 
@@ -129,6 +133,12 @@ GuiOptionBrowser::~GuiOptionBrowser()
 		delete optionBg[i];
 		delete optionBtn[i];
 	}
+}
+
+void GuiOptionBrowser::SetCol1Position(int x)
+{
+	for(int i=0; i<PAGESIZE; i++)
+		optionTxt[i]->SetPosition(x,0);
 }
 
 void GuiOptionBrowser::SetCol2Position(int x)
@@ -208,7 +218,7 @@ void GuiOptionBrowser::Draw()
 
 	int next = listOffset;
 
-	for(int i=0; i<PAGESIZE; i++)
+	for(int i=0; i<PAGESIZE; ++i)
 	{
 		if(next >= 0)
 		{
@@ -231,6 +241,22 @@ void GuiOptionBrowser::TriggerUpdate()
 	listChanged = true;
 }
 
+void GuiOptionBrowser::ResetText()
+{
+	int next = listOffset;
+
+	for(int i=0; i<PAGESIZE; i++)
+	{
+		if(next >= 0)
+		{
+			optionBtn[i]->ResetText();
+			next = this->FindMenuItem(next, 1);
+		}
+		else
+			break;
+	}
+}
+
 void GuiOptionBrowser::Update(GuiTrigger * t)
 {
 	if(state == STATE_DISABLED || !t)
@@ -246,7 +272,7 @@ void GuiOptionBrowser::Update(GuiTrigger * t)
 	if(listChanged)
 	{
 		listChanged = false;
-		for(int i=0; i<PAGESIZE; i++)
+		for(int i=0; i<PAGESIZE; ++i)
 		{
 			if(next >= 0)
 			{
@@ -269,7 +295,7 @@ void GuiOptionBrowser::Update(GuiTrigger * t)
 		}
 	}
 
-	for(int i=0; i<PAGESIZE; i++)
+	for(int i=0; i<PAGESIZE; ++i)
 	{
 		if(i != selectedItem && optionBtn[i]->GetState() == STATE_SELECTED)
 			optionBtn[i]->ResetState();
@@ -308,7 +334,7 @@ void GuiOptionBrowser::Update(GuiTrigger * t)
 			{
 				optionBtn[selectedItem]->ResetState();
 				optionBtn[selectedItem+1]->SetState(STATE_SELECTED, t->chan);
-				selectedItem++;
+				++selectedItem;
 			}
 		}
 		arrowDownBtn->ResetState();
@@ -329,7 +355,7 @@ void GuiOptionBrowser::Update(GuiTrigger * t)
 			{
 				optionBtn[selectedItem]->ResetState();
 				optionBtn[selectedItem-1]->SetState(STATE_SELECTED, t->chan);
-				selectedItem--;
+				--selectedItem;
 			}
 		}
 		arrowUpBtn->ResetState();

@@ -20,14 +20,14 @@ BUILD		:=	build
 SOURCES		:=	data source lib/libwiigui lib/libwiigui/libwiigui \
 				data/images data/fonts data/sounds
 INCLUDES	:=	include lib/libwiigui lib \
-				lib/libxml2/include lib/libxml++ lib/libxml++/libxml++ ../filemodule/include ../megamodule/include
+				lib/libxml2/include lib/libxml++ lib/libxml++/libxml++ ../filemodule/include ../megamodule/include 
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 
 CFLAGS		=	-fdata-sections -ffunction-sections -g -O2 -Wall $(MACHDEP) $(INCLUDE)
-CXXFLAGS	=	-save-temps -Xassembler -aln=$@.lst $(CFLAGS)
+CXXFLAGS	=	-save-temps -Xassembler -aln=$@.lst -I$(PORTLIBS_PATH)/ppc/include/freetype2 -Wfatal-errors $(CFLAGS)
 LDFLAGS		=	$(MACHDEP) -Wl,--gc-sections -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80a00000 -T ../lib/rvl.ld
 
 #---------------------------------------------------------------------------------

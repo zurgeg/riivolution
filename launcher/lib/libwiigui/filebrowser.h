@@ -12,8 +12,7 @@
 
 #include <unistd.h>
 #include <gccore.h>
-#include <sys/param.h>
-
+#define MAXPATHLEN 1024
 #define MAXJOLIET 255
 #define MAXDISPLAY 45
 
@@ -27,8 +26,6 @@ typedef struct
 
 typedef struct
 {
-	u64 offset; // DVD offset
-	unsigned int length; // file length
 	char isdir; // 0 - file, 1 - directory
 	char filename[MAXJOLIET + 1]; // full filename
 	char displayname[MAXDISPLAY + 1]; // name for browser display

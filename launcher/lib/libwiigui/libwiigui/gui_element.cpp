@@ -24,11 +24,13 @@ GuiElement::GuiElement()
 	width = 0;
 	height = 0;
 	alpha = 255;
-	scale = 1;
+	xscale = 1;
+	yscale = 1;
 	state = STATE_DEFAULT;
 	stateChan = -1;
 	trigger[0] = NULL;
 	trigger[1] = NULL;
+	trigger[2] = NULL;
 	parentElement = NULL;
 	rumble = true;
 	selectable = false;
@@ -70,11 +72,6 @@ GuiElement * GuiElement::GetParent()
 	return parentElement;
 }
 
-/**
- * Get the left position of the GuiElement.
- * @see SetLeft()
- * @return Left position in pixel.
- */
 int GuiElement::GetLeft()
 {
 	int x = 0;
@@ -96,20 +93,16 @@ int GuiElement::GetLeft()
 			x = pLeft;
 			break;
 		case ALIGN_CENTRE:
-			x = pLeft + (pWidth/2) - (width/2);
+			x = pLeft + pWidth/2.0 - (width*xscale)/2.0;
 			break;
 		case ALIGN_RIGHT:
-			x = pLeft + pWidth - width;
+			x = pLeft + pWidth - width*xscale;
 			break;
 	}
+	x += (width*(xscale - 1))/2.0; // correct offset for scaled images
 	return x + xoffset;
 }
 
-/**
- * Get the top position of the GuiElement.
- * @see SetTop()
- * @return Top position in pixel.
- */
 int GuiElement::GetTop()
 {
 	int y = 0;
@@ -131,12 +124,13 @@ int GuiElement::GetTop()
 			y = pTop;
 			break;
 		case ALIGN_MIDDLE:
-			y = pTop + (pHeight/2) - (height/2);
+			y = pTop + pHeight/2.0 - (height*yscale)/2.0;
 			break;
 		case ALIGN_BOTTOM:
-			y = pTop + pHeight - height;
+			y = pTop + pHeight - height*yscale;
 			break;
 	}
+	y += (height*(yscale - 1))/2.0; // correct offset for scaled images
 	return y + yoffset;
 }
 
@@ -180,33 +174,16 @@ int GuiElement::GetMaxY()
 	return ymax;
 }
 
-/**
- * Get the width of the GuiElement.
- * @see SetWidth()
- * @return Width of the GuiElement.
- */
 int GuiElement::GetWidth()
 {
 	return width;
 }
 
-/**
- * Get the height of the GuiElement.
- * @see SetHeight()
- * @return Height of the GuiElement.
- */
 int GuiElement::GetHeight()
 {
 	return height;
 }
 
-/**
- * Set the width and height of the GuiElement.
- * @param[in] Width Width in pixel.
- * @param[in] Height Height in pixel.
- * @see SetWidth()
- * @see SetHeight()
- */
 void GuiElement::SetSize(int w, int h)
 {
 
@@ -214,21 +191,11 @@ void GuiElement::SetSize(int w, int h)
 	height = h;
 }
 
-/**
- * Get visible.
- * @see SetVisible()
- * @return true if visible, false otherwise.
- */
 bool GuiElement::IsVisible()
 {
 	return visible;
 }
 
-/**
- * Set visible.
- * @param[in] Visible Set to true to show GuiElement.
- * @see IsVisible()
- */
 void GuiElement::SetVisible(bool v)
 {
 	visible = v;
@@ -241,30 +208,72 @@ void GuiElement::SetAlpha(int a)
 
 int GuiElement::GetAlpha()
 {
-	int a;
+	int a = alpha;
 
 	if(alphaDyn >= 0)
 		a = alphaDyn;
-	else
-		a = alpha;
 
 	if(parentElement)
-		a *= parentElement->GetAlpha()/255.0;
+		a *= float(parentElement->GetAlpha())/255.0f;
 
 	return a;
 }
 
 void GuiElement::SetScale(float s)
 {
-	scale = s;
+	xscale = s;
+	yscale = s;
+}
+
+void GuiElement::SetScaleX(float s)
+{
+	xscale = s;
+}
+
+void GuiElement::SetScaleY(float s)
+{
+	yscale = s;
+}
+
+void GuiElement::SetScale(int mw, int mh)
+{
+	xscale = 1.0f;
+	if(width > mw || height > mh)
+	{
+		if(width/(height*1.0) > mw/(mh*1.0))
+			xscale = mw/(width*1.0);
+		else
+			xscale = mh/(height*1.0);
+	}
+	yscale = xscale;
 }
 
 float GuiElement::GetScale()
 {
-	float s = scale * scaleDyn;
+	float s = xscale * scaleDyn;
 
 	if(parentElement)
 		s *= parentElement->GetScale();
+
+	return s;
+}
+
+float GuiElement::GetScaleX()
+{
+	float s = xscale * scaleDyn;
+
+	if(parentElement)
+		s *= parentElement->GetScale();
+
+	return s;
+}
+
+float GuiElement::GetScaleY()
+{
+	float s = yscale * scaleDyn;
+
+	if(parentElement)
+		s *= parentElement->GetScaleY();
 
 	return s;
 }
@@ -351,7 +360,9 @@ void GuiElement::SetTrigger(GuiTrigger * t)
 		trigger[0] = t;
 	else if(!trigger[1])
 		trigger[1] = t;
-	else // both were assigned, so we'll just overwrite the first one
+	else if(!trigger[2])
+		trigger[2] = t;
+	else // all were assigned, so we'll just overwrite the first one
 		trigger[0] = t;
 }
 
@@ -389,17 +400,12 @@ void GuiElement::SetEffect(int eff, int amount, int target)
 		else if(eff & EFFECT_SLIDE_RIGHT)
 			xoffsetDyn = screenwidth;
 	}
-	if(eff & EFFECT_FADE && amount > 0)
+	if(eff & EFFECT_FADE)
 	{
-		alphaDyn = 0;
-	}
-	else if(eff & EFFECT_FADE && amount < 0)
-	{
-		alphaDyn = alpha;
-	}
-	else if (eff & EFFECT_SCALE)
-	{
-		scaleDyn = 0;
+		if(amount > 0)
+			alphaDyn = 0;
+		else if(amount < 0)
+			alphaDyn = alpha;
 	}
 
 	effects |= eff;
@@ -505,23 +511,24 @@ void GuiElement::UpdateEffects()
 		if(effectAmount < 0 && alphaDyn <= 0)
 		{
 			alphaDyn = 0;
-			effects &= ~EFFECT_FADE; // shut off effect
+			effects = 0; // shut off effect
 		}
 		else if(effectAmount > 0 && alphaDyn >= alpha)
 		{
 			alphaDyn = alpha;
-			effects &= ~EFFECT_FADE; // shut off effect
+			effects = 0; // shut off effect
 		}
 	}
 	if(effects & EFFECT_SCALE)
 	{
-		scaleDyn += (f32)effectAmount/100.0;
+		scaleDyn += f32(effectAmount)*0.01f;
+		f32 effTar100 = f32(effectTarget)*0.01f;
 
-		if((effectAmount < 0 && scaleDyn <= (f32)effectTarget/100.0)
-			|| (effectAmount > 0 && scaleDyn >= (f32)effectTarget/100.0))
+		if((effectAmount < 0 && scaleDyn <= effTar100)
+			|| (effectAmount > 0 && scaleDyn >= effTar100))
 		{
-			scaleDyn = (f32)effectTarget/100.0;
-			effects &= ~EFFECT_SCALE; // shut off effect
+			scaleDyn = effTar100;
+			effects = 0; // shut off effect
 		}
 	}
 }
@@ -554,22 +561,22 @@ int GuiElement::GetSelected()
 	return -1;
 }
 
-/**
- * Draw an element on screen.
- */
+void GuiElement::ResetText()
+{
+}
+
 void GuiElement::Draw()
 {
 }
 
-/**
- * Check if a position is inside the GuiElement.
- * @param[in] x X position in pixel.
- * @param[in] y Y position in pixel.
- */
+void GuiElement::DrawTooltip()
+{
+}
+
 bool GuiElement::IsInside(int x, int y)
 {
-	if(x > this->GetLeft() && x < (this->GetLeft()+width)
-	&& y > this->GetTop() && y < (this->GetTop()+height))
+	if(unsigned(x - this->GetLeft())  < unsigned(width)
+	&& unsigned(y - this->GetTop())  < unsigned(height))
 		return true;
 	return false;
 }

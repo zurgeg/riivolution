@@ -18,7 +18,7 @@
 #include "libwiigui/gui.h"
 
 #define DEFAULT_FIFO_SIZE 256 * 1024
-static unsigned int *xfb[2] = { NULL, NULL }; // Double buffered
+static u32 *xfb[2] = { NULL, NULL }; // Double buffered
 static int whichfb = 0; // Switch
 static GXRModeObj *vmode; // Menu video mode
 static unsigned char gp_fifo[DEFAULT_FIFO_SIZE] ATTRIBUTE_ALIGN (32);
@@ -121,13 +121,15 @@ InitVideo ()
 	screenwidth = vmode->fbWidth;
 
 	// Allocate the video buffers
-	xfb[0] = (u32 *) MEM_K0_TO_K1 (SYS_AllocateFramebuffer (vmode));
-	xfb[1] = (u32 *) MEM_K0_TO_K1 (SYS_AllocateFramebuffer (vmode));
+	xfb[0] = (u32 *) SYS_AllocateFramebuffer (vmode);
+	xfb[1] = (u32 *) SYS_AllocateFramebuffer (vmode);
+	DCInvalidateRange(xfb[0], VIDEO_GetFrameBufferSize(vmode));
+	DCInvalidateRange(xfb[1], VIDEO_GetFrameBufferSize(vmode));
+	xfb[0] = (u32 *) MEM_K0_TO_K1 (xfb[0]);
+	xfb[1] = (u32 *) MEM_K0_TO_K1 (xfb[1]);
 
 	// A console is always useful while debugging
-	CON_Init (xfb[0], 20, 64, vmode->fbWidth, vmode->xfbHeight, vmode->fbWidth * 2);
-
-	printf("\n\n\n");
+	console_init (xfb[0], 20, 64, vmode->fbWidth, vmode->xfbHeight, vmode->fbWidth * 2);
 
 	// Clear framebuffers etc.
 	VIDEO_ClearFrameBuffer (vmode, xfb[0], COLOR_BLACK);
@@ -147,7 +149,7 @@ InitVideo ()
 	GX_SetCopyClear (background, 0x00ffffff);
 	GX_SetDispCopyGamma (GX_GM_1_0);
 	GX_SetCullMode (GX_CULL_NONE);
-
+	
 	ResetVideo_Menu();
 	// Finally, the video is up and ready for use :)
 }
@@ -205,8 +207,9 @@ void Menu_DrawImg(f32 xpos, f32 ypos, u16 width, u16 height, u8 data[],
 	GX_SetVtxDesc (GX_VA_TEX0, GX_DIRECT);
 
 	Mtx m,m1,m2, mv;
-	width *= 0.5;
-	height *= 0.5;
+	width  >>= 1;
+	height >>= 1;
+
 	guMtxIdentity (m1);
 	guMtxScaleApply(m1,m1,scaleX,scaleY,1.0);
 	guVector axis = (guVector) {0 , 0, 1 };
@@ -247,26 +250,20 @@ void Menu_DrawImg(f32 xpos, f32 ypos, u16 width, u16 height, u8 data[],
  ***************************************************************************/
 void Menu_DrawRectangle(f32 x, f32 y, f32 width, f32 height, GXColor color, u8 filled)
 {
-	u8 fmt;
-	long n;
-	int i;
+	long n = 4;
 	f32 x2 = x+width;
 	f32 y2 = y+height;
 	guVector v[] = {{x,y,0.0f}, {x2,y,0.0f}, {x2,y2,0.0f}, {x,y2,0.0f}, {x,y,0.0f}};
+	u8 fmt = GX_TRIANGLEFAN;
 
 	if(!filled)
 	{
 		fmt = GX_LINESTRIP;
 		n = 5;
 	}
-	else
-	{
-		fmt = GX_TRIANGLEFAN;
-		n = 4;
-	}
 
 	GX_Begin(fmt, GX_VTXFMT0, n);
-	for(i=0; i<n; i++)
+	for(long i=0; i<n; ++i)
 	{
 		GX_Position3f32(v[i].x, v[i].y,  v[i].z);
 		GX_Color4u8(color.r, color.g, color.b, color.a);

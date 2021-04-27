@@ -12,10 +12,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wiiuse/wpad.h>
-#include <dirent.h>
+#include <sys/dir.h>
 #include <malloc.h>
 
 #include "filebrowser.h"
+#include "menu.h"
 
 BROWSERINFO browser;
 BROWSERENTRY * browserList = NULL; // list of files/folders in browser
@@ -128,9 +129,7 @@ ParseDirectory()
 {
 	DIR *dir = NULL;
 	char fulldir[MAXPATHLEN];
-	char filename[MAXPATHLEN];
-	struct stat filestat;
-	struct dirent *ent;
+	struct dirent *entry;
 
 	// reset browser
 	ResetBrowser();
@@ -153,44 +152,41 @@ ParseDirectory()
 	// index files/folders
 	int entryNum = 0;
 
-	while((ent = readdir(dir)))
+	while((entry = readdir(dir)))
 	{
-		sprintf(filename, "%s%s%s", rootdir, browser.dir, ent->d_name);
-		if (stat(filename, &filestat) == -1)
+		if(strcmp(entry->d_name,".") == 0)
 			continue;
+		
+		BROWSERENTRY * newBrowserList = (BROWSERENTRY *)realloc(browserList, (entryNum+1) * sizeof(BROWSERENTRY));
 
-		if(strcmp(ent->d_name,".") != 0)
+		if(!newBrowserList) // failed to allocate required memory
 		{
-			BROWSERENTRY * newBrowserList = (BROWSERENTRY *)realloc(browserList, (entryNum+1) * sizeof(BROWSERENTRY));
-
-			if(!newBrowserList) // failed to allocate required memory
-			{
-				ResetBrowser();
-				entryNum = -1;
-				break;
-			}
-			else
-			{
-				browserList = newBrowserList;
-			}
-			memset(&(browserList[entryNum]), 0, sizeof(BROWSERENTRY)); // clear the new entry
-
-			strncpy(browserList[entryNum].filename, ent->d_name, MAXJOLIET);
-
-			if(strcmp(ent->d_name,"..") == 0)
-			{
-				sprintf(browserList[entryNum].displayname, "Up One Level");
-			}
-			else
-			{
-				strncpy(browserList[entryNum].displayname, ent->d_name, MAXDISPLAY);	// crop name for display
-			}
-
-			browserList[entryNum].length = filestat.st_size;
-			browserList[entryNum].isdir = (filestat.st_mode & _IFDIR) == 0 ? 0 : 1; // flag this as a dir
-
-			entryNum++;
+			ResetBrowser();
+			entryNum = -1;
+			break;
 		}
+		else
+		{
+			browserList = newBrowserList;
+		}
+		memset(&(browserList[entryNum]), 0, sizeof(BROWSERENTRY)); // clear the new entry
+
+		strncpy(browserList[entryNum].filename, entry->d_name, MAXJOLIET);
+
+		if(strcmp(entry->d_name,"..") == 0)
+		{
+			sprintf(browserList[entryNum].displayname, "Up One Level");
+			browserList[entryNum].isdir = 1; // flag this as a dir
+		}
+		else
+		{
+			strncpy(browserList[entryNum].displayname, entry->d_name, MAXDISPLAY);	// crop name for display
+		
+			if(entry->d_type==DT_DIR)
+				browserList[entryNum].isdir = 1; // flag this as a dir
+		}
+
+		entryNum++;
 	}
 
 	// close directory

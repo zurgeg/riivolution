@@ -14,17 +14,25 @@ BUILD		:=	buildios
 SOURCES		:=	.
 DATA		:=	data
 INCLUDES	:=  ../include ../../libios/include
-
+UNAME           :=  $(shell uname)
 #---------------------------------------------------------------------------------
 # the prefix on the compiler executables
 #---------------------------------------------------------------------------------
-PREFIX		:= $(DEVKITARM)/bin/arm-eabi-
-CC			:= $(PREFIX)gcc
-CXX			:= $(PREFIX)g++
-AR			:= $(PREFIX)ar
-OBJCOPY		:= $(PREFIX)objcopy
-LD			:= $(PREFIX)g++
-AS			:= $(PREFIX)g++
+PREFIX		:= $(DEVKITARM)/bin/arm-none-eabi-
+ifneq (,$(findstring NT,$(UNAME)))
+	CC			:= $(PREFIX)gcc.exe
+	CXX			:= $(PREFIX)g++.exe
+	AR			:= $(PREFIX)ar.exe
+	OBJCOPY		:= $(PREFIX)objcopy.exe
+	LD			:= $(PREFIX)g++.exe
+	AS			:= $(PREFIX)g++.exe
+endif
+CC			?= $(PREFIX)gcc
+CXX			?= $(PREFIX)g++
+AR			?= $(PREFIX)ar
+OBJCOPY		?= $(PREFIX)objcopy
+LD			?= $(PREFIX)g++
+AS			?= $(PREFIX)g++
 
 #---------------------------------------------------------------------------------
 # linker script
