@@ -26,14 +26,14 @@
 
 struct SSettings Settings;
 int ExitRequested = 0;
-
+/*
 void ExitApp()
 {
 	ShutoffRumble();
 	StopGX();
 	exit(0);
 }
-
+*/
 void
 DefaultSettings()
 {
@@ -45,7 +45,7 @@ DefaultSettings()
 	Settings.AutoLoad = 1;
 	Settings.AutoSave = 1;
 }
-
+/*
 int
 main(int argc, char *argv[])
 {
@@ -59,3 +59,4 @@ main(int argc, char *argv[])
 	DefaultSettings();
 	MainMenu(MENU_SETTINGS);
 }
+*/
