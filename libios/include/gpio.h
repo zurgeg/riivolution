@@ -1,7 +1,7 @@
 #ifndef __GPIO_H__
 #define __GPIO_H__
 
-#include <gctypes.h>
+#include "gctypes.h"
 
 #define GPIO_BASE 			0xd800000
 #define GPIO_OUT			0x0E0

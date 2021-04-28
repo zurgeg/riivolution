@@ -210,12 +210,12 @@ int File_NextDir(int dir, char* path, Stats* st)
 	ioctlvbuffer[0].data = ioctlbuffer;
 	ioctlvbuffer[0].len = 0x04;
 	ioctlvbuffer[1].data = path;
-	ioctlvbuffer[1].len = MAXPATHLEN;
+	ioctlvbuffer[1].len = IPC_MAXPATH_LEN;
 	ioctlvbuffer[2].data = _st;
 	ioctlvbuffer[2].len = sizeof(Stats);
 	os_sync_after_write(ioctlvbuffer, sizeof(ioctlvbuffer));
 	ret = os_ioctlv(file_fd, IOCTL_NextDir, 1, 2, ioctlvbuffer);
-	os_sync_before_read(path, MAXPATHLEN);
+	os_sync_before_read(path, IPC_MAXPATH_LEN);
 	os_sync_before_read(_st, sizeof(Stats));
 	if (st)
 		memcpy(st, _st, sizeof(Stats));
@@ -236,7 +236,7 @@ int File_CloseDir(int dir)
 int File_Open(const char* path, int mode)
 {
 	static char short_path[0x20] ATTRIBUTE_ALIGN(32);
-	char fpath[MAXPATHLEN];
+	char fpath[IPC_MAXPATH_LEN];
 
 	strcpy(fpath, FILE_MODULE_NAME);
 	strcat(fpath, path);
@@ -343,7 +343,7 @@ int File_Open_ID(u64 id, int mode)
 
 int File_RiiFS_Mount(const char* host, int port)
 {
-	char data[MAXPATHLEN];
+	char data[IPC_MAXPATH_LEN];
 
 	memcpy(data, &port, sizeof(int));
 	strcpy(data + sizeof(int), host);

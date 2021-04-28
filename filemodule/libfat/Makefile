@@ -1,3 +1,4 @@
+
 #---------------------------------------------------------------------------------
 # Clear the implicit built in rules
 #---------------------------------------------------------------------------------
@@ -18,13 +19,21 @@ INCLUDES	:=  include include/fat ../../libios/include
 #---------------------------------------------------------------------------------
 # the prefix on the compiler executables
 #---------------------------------------------------------------------------------
-PREFIX		:= $(DEVKITARM)/bin/arm-eabi-
-CC			:= $(PREFIX)gcc
-CXX			:= $(PREFIX)g++
-AR			:= $(PREFIX)ar
-OBJCOPY		:= $(PREFIX)objcopy
-LD			:= $(PREFIX)g++
-AS			:= $(PREFIX)g++
+PREFIX		:= $(DEVKITARM)/bin/arm-none-eabi-
+ifneq (,$(findstring NT,$(UNAME)))
+	CC			:= $(PREFIX)gcc.exe
+	CXX			:= $(PREFIX)g++.exe
+	AR			:= $(PREFIX)ar.exe
+	OBJCOPY		:= $(PREFIX)objcopy.exe
+	LD			:= $(PREFIX)g++.exe
+	AS			:= $(PREFIX)gcc.exe
+endif
+CC			?= $(PREFIX)gcc
+CXX			?= $(PREFIX)g++
+AR			?= $(PREFIX)ar
+OBJCOPY		?= $(PREFIX)objcopy
+LD			?= $(PREFIX)g++
+AS			?= $(PREFIX)gcc
 
 #---------------------------------------------------------------------------------
 # linker script
@@ -59,8 +68,8 @@ SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(ROOT)/$(dir)/*.S)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(ROOT)/$(dir)/*.*)))
 
 OFILES		:=	$(addsuffix _bin.o,$(BINFILES)) \
-					$(CPPFILES:.cpp=_cpp.o) $(CFILES:.c=_c.o) \
-					$(sFILES:.s=_s.o) $(SFILES:.S=_S.o)
+					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
+					$(sFILES:.s=.o) $(SFILES:.S=.o)
 					
 DEPENDS		:= $(OFILES:.o=.d)
 
@@ -76,7 +85,7 @@ INCLUDE	:=			$(foreach dir,$(INCLUDES),-I$(ROOT)/$(dir)) \
 #---------------------------------------------------------------------------------
 # build a list of library paths
 #---------------------------------------------------------------------------------
-ARCH	=	-mcpu=arm926ej-s -mtune=arm926ej-s -mthumb -mthumb-interwork -mbig-endian
+ARCH	=	-march=armv5te -mtune=arm926ej-s
 
 CFLAGS	=	-g $(ARCH) $(INCLUDE) -fno-strict-aliasing -Wall -O2 -fomit-frame-pointer -ffast-math -fverbose-asm \
 			-Wstrict-prototypes -Wpointer-arith -Winline -Wundef -g -ffunction-sections -fdata-sections -fno-exceptions -Wno-strict-prototypes -std=gnu99 \
@@ -89,17 +98,6 @@ $(OUTPUT).a: $(OFILES)
 	@echo linking $(notdir $@)
 	@$(AR) rvs $@ $(OFILES) $(STYLEFIX)
 	
-%_cpp.o : %.cpp
-	@echo $(notdir $<)
-	@$(CXX) -MMD -MF $*_cpp.d $(CFLAGS) -c $< -o$@ $(STYLEFIX)
-
-%_c.o : %.c
-	@echo $(notdir $<)
-	@$(CC) -MMD -MF $*_c.d $(CFLAGS)  -c $< -o$@ $(STYLEFIX)
-
-%_s.o : %.s
-	@echo $(notdir $<)
-	@$(AS) -MMD -MF $*_s.d $(AFLAGS) -c $< -o$@ $(STYLEFIX)
 
 %_bin.o : %.bin
 	@echo $(notdir $<)

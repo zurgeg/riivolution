@@ -1,8 +1,8 @@
-#include "syscalls.h"
-#include "gctypes.h"
-#include "gcutil.h"
-#include "rtc.h"
-#include "starlet.h"
+#include "../include/syscalls.h"
+#include "../include/gctypes.h"
+#include "../include/gcutil.h"
+#include "../include/rtc.h"
+#include "../include/starlet.h"
 
 #define TICKS_TO_SEC(a) ((((u64)(a))*2390)>>32)
 #define TIMER_REG (*(u32*)HW_TIMER)

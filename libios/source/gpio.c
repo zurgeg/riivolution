@@ -1,6 +1,6 @@
-#include "gctypes.h"
-#include "gpio.h"
-#include "syscalls.h"
+#include "../include/gctypes.h"
+#include "../include/gpio.h"
+#include "../include/syscalls.h"
 
 static u32 toggle_mask = 0xFFFFFFFF;
 

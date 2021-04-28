@@ -1,12 +1,12 @@
 #include <string.h>
 
-#include "gctypes.h"
-#include "ipc.h"
-#include "syscalls.h"
-#include "mem.h"
-#include "usb.h"
-#include "ch341.h"
-#include "gpio.h"
+#include "../include/gctypes.h"
+#include "../include/ipc.h"
+#include "../include/syscalls.h"
+#include "../include/mem.h"
+#include "../include/usb.h"
+#include "../include/ch341.h"
+#include "../include/gpio.h"
 
 typedef struct ch341_private_t {
 	usb_device *dev;

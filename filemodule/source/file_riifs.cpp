@@ -435,8 +435,8 @@ namespace ProxiIOS { namespace Filesystem {
 			return ret;
 #endif
 		SendCommand(RII_OPTION_FILE, &info->File, 4);
-		int len = ReceiveCommand(RII_FILE_NEXTDIR_PATH, filename, MAXPATHLEN);
-		os_sync_after_write(filename, MAXPATHLEN);
+		int len = ReceiveCommand(RII_FILE_NEXTDIR_PATH, filename, 255);
+		os_sync_after_write(filename, 255);
 		if (len < 0)
 			return len;
 		if (st==NULL)

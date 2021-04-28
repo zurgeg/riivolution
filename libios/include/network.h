@@ -1,7 +1,7 @@
 #ifndef __NETWORK_H__
 #define __NETWORK_H__
 
-#include <gctypes.h>
+#include "gctypes.h"
 
 #define __LINUX_ERRNO_EXTENSIONS__
 #include <errno.h>

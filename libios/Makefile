@@ -1,3 +1,4 @@
+include $(DEVKITARM)/base_rules
 #---------------------------------------------------------------------------------
 # Clear the implicit built in rules
 #---------------------------------------------------------------------------------
@@ -13,7 +14,7 @@ TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data  
-INCLUDES	:=	include
+INCLUDES	:=	../include
 
 #---------------------------------------------------------------------------------
 # the prefix on the compiler executables
@@ -25,14 +26,14 @@ ifneq (,$(findstring NT,$(UNAME)))
 	AR			:= $(PREFIX)ar.exe
 	OBJCOPY		:= $(PREFIX)objcopy.exe
 	LD			:= $(PREFIX)g++.exe
-	AS			:= $(PREFIX)as.exe
+	AS			:= $(PREFIX)gcc.exe
 endif
 CC			?= $(PREFIX)gcc
 CXX			?= $(PREFIX)g++
 AR			?= $(PREFIX)ar
 OBJCOPY		?= $(PREFIX)objcopy
 LD			?= $(PREFIX)g++
-AS			?= $(PREFIX)as
+AS			?= $(PREFIX)gcc
 
 #---------------------------------------------------------------------------------
 # linker script
@@ -66,24 +67,17 @@ SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(ROOT)/$(dir)/*.S)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(ROOT)/$(dir)/*.*)))
 
 OFILES		:=	$(addsuffix _bin.o,$(BINFILES)) \
-					$(CPPFILES:.cpp=_cpp.o) $(CFILES:.c=_c.o) \
-					$(sFILES:.s=_s.o) $(SFILES:.S=_S.o)
+					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
+					$(sFILES:.s=.o) $(SFILES:.S=.o)
 					
 DEPENDS		:= $(OFILES:.o=.d)
 
 VPATH		=  $(foreach dir,$(SOURCES),$(ROOT)/$(dir))
 
-
-#---------------------------------------------------------------------------------
-# options for code generation
-#---------------------------------------------------------------------------------
-INCLUDE	:=			$(foreach dir,$(INCLUDES),-I$(ROOT)/$(dir)) \
-					-I$(ROOT)/$(BUILD) 
-
 #---------------------------------------------------------------------------------
 # build a list of library paths
 #---------------------------------------------------------------------------------
-ARCH	=	
+ARCH	=	-march=armv5te -mtune=arm926ej-s
 
 CFLAGS	=	-g $(ARCH) $(INCLUDE) -fno-strict-aliasing -Wall -O2 -fomit-frame-pointer -ffast-math -fverbose-asm \
 			-Wpointer-arith -Winline -Wundef -g -ffunction-sections -fdata-sections -fno-exceptions
@@ -97,22 +91,6 @@ AFLAGS	=	-g $(ARCH)
 $(OUTPUT).a: $(OFILES)
 	@echo linking $(notdir $@)
 	@$(AR) rvs $@ $(OFILES) $(STYLEFIX)
-	
-%_cpp.o : %.cpp
-	@echo $(notdir $<)
-	@$(CXX) -MMD -MF $*_cpp.d $(CPPFLAGS) -c $< -o$@ $(STYLEFIX)
-
-%_c.o : %.c
-	@echo $(notdir $<)
-	@$(CC) -MMD -MF $*_c.d $(CFLAGS)  -c $< -o$@ $(STYLEFIX)
-
-%_s.o : %.s
-	@echo $(notdir $<)
-	@$(AS) -MMD -MF $*_s.d $(AFLAGS) -c $< -o$@ $(STYLEFIX)
-
-%_bin.o : %.bin
-	@echo $(notdir $<)
-	@$(bin2o)
 
 -include $(DEPENDS)
 	

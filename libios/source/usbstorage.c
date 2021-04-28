@@ -28,12 +28,12 @@ distribution.
 
 #include <string.h>
 
-#include "usbstorage.h"
-#include "syscalls.h"
-#include "mem.h"
-#include "ipc.h"
-#include "timer.h"
-#include "gpio.h"
+#include "../include/usbstorage.h"
+#include "../include/syscalls.h"
+#include "../include/mem.h"
+#include "../include/ipc.h"
+#include "../include/timer.h"
+#include "../include/gpio.h"
 
 #define debug_printf(fmt, args...)
 #define	TAG_START						0x0BADC0DE

@@ -36,14 +36,14 @@ distribution.
 #include <fcntl.h>
 #include <ctype.h>
 
-#include "gctypes.h"
-#include "gcutil.h"
-#include "ipc.h"
-#include "network.h"
-#include "syscalls.h"
-#include "mem.h"
-#include "timer.h"
-#include "gpio.h"
+#include "../include/gctypes.h"
+#include "../include/gcutil.h"
+#include "../include/ipc.h"
+#include "../include/network.h"
+#include "../include/syscalls.h"
+#include "../include/mem.h"
+#include "../include/timer.h"
+#include "../include/gpio.h"
 
 #define MEM_PHYSICAL_TO_K0(x) x
 

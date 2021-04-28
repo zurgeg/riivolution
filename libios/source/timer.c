@@ -20,9 +20,9 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "syscalls.h"
-#include "gctypes.h"
-#include "mem.h"
+#include "../include/syscalls.h"
+#include "../include/gctypes.h"
+#include "../include/mem.h"
 
 #define TIMER_MSGS 8
 

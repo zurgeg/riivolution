@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h> // for memcpy
 
-#include "lwp_heap.h"
+#include "../include/lwp_heap.h"
 
 #define HEAP_BLOCK_USED					1
 #define HEAP_BLOCK_FREE					0

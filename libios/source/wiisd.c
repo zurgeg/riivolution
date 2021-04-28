@@ -33,13 +33,13 @@
 */
 
 #include <string.h>
-#include "gctypes.h"
-#include "gcutil.h"
-#include "ipc.h"
-#include "disc_io.h"
-#include "wiisd_io.h"
-#include "syscalls.h"
-#include "gpio.h"
+#include "../include/gctypes.h"
+#include "../include/gcutil.h"
+#include "../include/ipc.h"
+#include "../include/disc_io.h"
+#include "../include/wiisd_io.h"
+#include "../include/syscalls.h"
+#include "../include/gpio.h"
 
 #define PAGE_SIZE512				512
 

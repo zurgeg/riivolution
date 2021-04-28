@@ -1,6 +1,6 @@
-#include "gctypes.h"
+#include "../include/gctypes.h"
 
-#include "network.h"
+#include "../include/network.h"
 
 /* Here for now until needed in other places in lwIP */
 #ifndef isascii

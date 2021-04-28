@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gctypes.h>
+#include "gctypes.h"
 
 #define IPC_HEAP			 -1
 

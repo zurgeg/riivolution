@@ -193,7 +193,7 @@ bool fatInit (uint32_t cacheSize, bool setAsDefaultDevice) {
 	}
 
 	if (setAsDefaultDevice) {
-		char filePath[MAXPATHLEN * 2];
+		char filePath[255 * 2];
 		strcpy (filePath, _FAT_disc_interfaces[defaultDevice].name);
 		strcat (filePath, ":/");
 #ifdef ARGV_MAGIC

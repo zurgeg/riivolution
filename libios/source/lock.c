@@ -1,5 +1,5 @@
-#include "lock.h"
-#include "syscalls.h"
+#include "../include/lock.h"
+#include "../include/syscalls.h"
 
 #define LOCK_MSG 0x5AFEC0DE
 

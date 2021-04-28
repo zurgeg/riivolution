@@ -29,13 +29,13 @@ distribution.
 
 #include <string.h>
 
-#include "gcutil.h"
-#include "ipc.h"
-#include "syscalls.h"
-#include "mem.h"
-#include "gpio.h"
+#include "../include/gcutil.h"
+#include "../include/ipc.h"
+#include "../include/syscalls.h"
+#include "../include/mem.h"
+#include "../include/gpio.h"
 
-#include "usb.h"
+#include "../include/usb.h"
 
 #define debug_printf(fmt, args...)
 

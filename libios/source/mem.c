@@ -1,13 +1,13 @@
 
 #define USE_LWP
 
-#include "mem.h"
-#include "lock.h"
+#include "../include/mem.h"
+#include "../include/lock.h"
 
 #include <string.h>
 
 #ifndef USE_LWP
-#include "syscalls.h"
+#include "../include/syscalls.h"
 static u32 heaphandle;
 
 #else // USE_LWP
