@@ -205,9 +205,10 @@ void Initialise()
 		} else {
 			printf("\tThe installation was completed successfully!\n");
 			WPAD_Shutdown();
-			if (Haxx_Init()<0) {
+			int err = Haxx_Init();
+			if (err<0) {
 				WPAD_Init();
-				printf("\tSomething still seems to be wrong; I'm getting outta here!\n");
+				printf("\tSomething still seems to be wrong; I'm getting outta here!  Error %d\n", err);
 				PressHome();
 				exit(0);
 			}

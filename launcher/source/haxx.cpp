@@ -167,10 +167,11 @@ int Haxx_Init()
 {
 	if (IOS_GetVersion() != (u32)HAXX_IOS)
 		IOS_ReloadwithAHB((u32)HAXX_IOS);
-
+	#ifdef USE_PROBLEMATIC_CODE
 	if (!do_exploit())
+		printf("exploit failed!\n")
 		return -1;
-
+	#endif
 	usleep(4000);
 	#ifdef USE_PROBLEMATIC_CODE
 	if (load_module_code(filemodule_dat, filemodule_dat_size) <= 0)
