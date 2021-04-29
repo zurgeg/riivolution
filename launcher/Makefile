@@ -25,15 +25,15 @@ INCLUDES	:=	include lib/libwiigui lib \
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-
-CFLAGS		=	-fdata-sections -ffunction-sections -g -O2 -Wall $(MACHDEP) $(INCLUDE)
 CXXFLAGS	=	-save-temps -Xassembler -aln=$@.lst -I$(PORTLIBS_PATH)/ppc/include/freetype2 -Wfatal-errors $(CFLAGS)
-LDFLAGS		=	$(MACHDEP) -Wl,--gc-sections -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80a00000 -T ../lib/rvl.ld
 
+CFLAGS		=	-fdata-sections -ffunction-sections -g -O2 -Wall $(MACHDEP) $(INCLUDE) $(LIBS) 
+
+LDFLAGS		=	$(MACHDEP) -Wl,--gc-sections -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80a00000 -T ../lib/rvl.ld $(LIBS)
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS := -L../lib -lxml++ -lxml2 -lpng -lz -lfat -lwiiuse -lbte -lasnd -logc -lvorbisidec -lfreetype ../../filemodule/libfile/libfile_wii.a ../../megamodule/libmega/libmega_wii.a
+LIBS := -L../lib -lxml++ -lxml2 -logg -lvorbis -lvorbisidec -lbz2 -lpng -lz -lfat -lwiiuse -lbte -lasnd -logc -lfreetype ../../filemodule/libfile/libfile_wii.a ../../megamodule/libmega/libmega_wii.a
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
@@ -86,7 +86,6 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
 					-I$(CURDIR)/$(BUILD) \
 					-I$(LIBOGC_INC) -I$(PORTLIBS)/include/freetype2
-
 #---------------------------------------------------------------------------------
 # build a list of library paths
 #---------------------------------------------------------------------------------
