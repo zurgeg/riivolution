@@ -27,12 +27,20 @@ LIBDIRS		:=
 # the prefix on the compiler executables
 #---------------------------------------------------------------------------------
 PREFIX		:= $(DEVKITARM)/bin/arm-none-eabi-
-CC			:= $(PREFIX)gcc.exe
-CXX			:= $(PREFIX)g++.exe
-AR			:= $(PREFIX)ar.exe
-OBJCOPY		:= $(PREFIX)objcopy.exe
-LD			:= $(PREFIX)g++.exe
-AS			:= $(PREFIX)g++.exe
+ifneq (,$(findstring NT,$(UNAME)))
+	CC			:= $(PREFIX)gcc.exe
+	CXX			:= $(PREFIX)g++.exe
+	AR			:= $(PREFIX)ar.exe
+	OBJCOPY		:= $(PREFIX)objcopy.exe
+	LD			:= $(PREFIX)g++.exe
+	AS			:= $(PREFIX)gcc.exe
+endif
+CC			?= $(PREFIX)gcc
+CXX			?= $(PREFIX)g++
+AR			?= $(PREFIX)ar
+OBJCOPY		?= $(PREFIX)objcopy
+LD			?= $(PREFIX)g++
+AS			?= $(PREFIX)gcc
 
 #---------------------------------------------------------------------------------
 # linker script

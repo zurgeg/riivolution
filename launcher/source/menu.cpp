@@ -131,7 +131,7 @@ void MainMenu(Menus::Enum menu)
 	Title->SetPosition(56, 32);
 	// TODO: Title->SetItalic(true);
 	Window->Append(Title);
-
+	
 	Subtitle = new GuiText("Loading...", 18, (GXColor){255, 255, 255, 255});
 	Subtitle->SetAlignment(ALIGN_LEFT, ALIGN_TOP);
 	Subtitle->SetPosition(74, 78);
@@ -151,6 +151,7 @@ void MainMenu(Menus::Enum menu)
 	Music->SetVolume(50);
 	Music->Play();
 	*/
+	
 	while (menu != Menus::Exit) {
 		switch (menu) {
 			case Menus::Mount:
@@ -171,21 +172,17 @@ void MainMenu(Menus::Enum menu)
 			case Menus::Launch:
 				menu = MenuLaunch();
 				break;
-			#ifdef INSTALLER_AVAILABLE
 			case Menus::Install:
 				menu = MenuInstall();
 				break;
 			case Menus::Uninstall:
 				menu = MenuUninstall();
-				break;
-			#endif
 			default:
 				break;
 		}
 	}
-
+	
 	ShutoffRumble();
-
 	ResumeGui();
 	RequestExit();
 	while (true)
@@ -193,8 +190,8 @@ void MainMenu(Menus::Enum menu)
 
 	HaltGui();
 
-	Music->Stop();
-	delete Music;
+	//Music->Stop();
+	//delete Music;
 	delete Background;
 	delete Window;
 

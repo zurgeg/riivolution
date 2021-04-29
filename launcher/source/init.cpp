@@ -145,13 +145,13 @@ void Initialise()
 #endif
 
 	is_wiiu = 0;
-	if (ES_GetDeviceID(&is_wiiu)<0 || is_wiiu >= 0x20000000)
+	if (ES_GetDeviceID(&is_wiiu)<0 || is_wiiu >= 0x20000000){
 		is_wiiu = 1;
-	else
+	} else {
 		is_wiiu = 0;
-
+	}
 	InitVideo();
-
+	#ifdef USE_PROBLEMATIC_CODE
 	if (Haxx_Init() < 0) {
 		int approach = 0;
 		WPAD_Init();
@@ -212,8 +212,10 @@ void Initialise()
 				PressHome();
 				exit(0);
 			}
+			
 		}
-	}
+	};
+	#endif
 
 	// change parameter to redirect stdout/stderr over wifi
 	Init_DebugConsole(0);

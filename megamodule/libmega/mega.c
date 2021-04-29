@@ -137,7 +137,7 @@ int Mega_Poll(void)
 
 int Mega_Debugger_Connect(const char* host, int port)
 {
-	char data[MAXPATHLEN];
+	char data[IPC_MAXPATH_LEN];
 
 	memcpy(data, &port, sizeof(int));
 	strcpy(data + sizeof(int), host);

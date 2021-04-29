@@ -1,10 +1,7 @@
 #include "menu.h"
 #include "launcher.h"
- // Didn't work on latest devkitpro
 #include "haxx.h"
-#ifdef INSTALLER_AVAILABLE
 #include "installer.h"
-#endif
 #include "riivolution_config.h"
 
 #include "init.h"
@@ -369,7 +366,6 @@ Menus::Enum MenuMount()
 	buttons.SetButton(0, "Exit", ButtonList::ExitImage);
 	buttons.GetButton(0)->SetTrigger(&Trigger[Triggers::Home]);
 	ResumeGui();
-
 	Haxx_Mount(&Mounted);
 	Launcher_ScrubPlaytimeEntry();
 
@@ -381,16 +377,13 @@ Menus::Enum MenuMount()
 	HaltGui(); Subtitle->SetText("Loading..."); ResumeGui();
 
 	LauncherStatus::Enum status;
-
 	do {
 		if (RVL_Initialize() < 0 || (status = Launcher_Init()) == LauncherStatus::IosError) {
 			HaltGui(); Subtitle->SetText("IOS Error!"); ResumeGui();
 			status = LauncherStatus::IosError;
 		}
-
 		MENUINIT_CHECKBUTTONS();
 	} while (status != LauncherStatus::OK);
-
 	return Menus::Init;
 }
 
@@ -407,7 +400,6 @@ Menus::Enum MenuInit()
 
 	LauncherStatus::Enum status = LauncherStatus::NoDisc;
 	HaltGui(); Subtitle->SetText("Loading..."); ResumeGui();
-
 	do {
 		status = Launcher_ReadDisc();
 		switch (status) {
@@ -425,7 +417,6 @@ Menus::Enum MenuInit()
 
 		MENUINIT_CHECKBUTTONS();
 	} while (status != LauncherStatus::OK);
-
 	HaltGui(); Title->SetText(Launcher_GetGameName()); ResumeGui();
 
 	vector<RiiDisc> discs;
@@ -522,9 +513,7 @@ Menus::Enum MenuMain()
 	buttons.GetButton(0)->SetTrigger(&Trigger[Triggers::Home]);
 	buttons.SetButton(1, "Launch", ButtonList::LaunchImage);
 	buttons.GetButton(1)->SetState(STATE_SELECTED, 0);
-	#ifdef INSTALLER_AVAILABLE
 	buttons.SetButton(2, installed ? "Remove" : "Install", ButtonList::UninstallImage);
-	#endif
 	ResumeGui();
 
 	PreparePages();
@@ -541,14 +530,12 @@ Menus::Enum MenuMain()
 				return Menus::Exit;
 			case 1:
 				return Menus::Launch;
-			#ifdef INSTALLER_AVAILABLE
 			case 2:
 				
 				if (installed)
 					return Menus::Uninstall;
 				else
 					return Menus::Install;
-			#endif
 		}
 
 		CheckShutdown();
@@ -557,7 +544,6 @@ Menus::Enum MenuMain()
 			return Menus::Init;
 	}
 }
-#ifdef INSTALLER_AVAILABLE
 Menus::Enum MenuInstall()
 {
 	HaltGui(); Subtitle->SetText("Installing..."); ResumeGui();
@@ -596,7 +582,6 @@ Menus::Enum MenuUninstall()
 
 	return Menus::Main;
 }
-#endif
 Menus::Enum MenuLaunch()
 {
 	HaltGui(); Subtitle->SetText("Loading..."); ResumeGui();

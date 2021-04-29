@@ -25,14 +25,21 @@ LIBDIRS		:=
 #---------------------------------------------------------------------------------
 # the prefix on the compiler executables
 #---------------------------------------------------------------------------------
-PREFIX		:= $(DEVKITARM)/bin/arm-eabi-
-CC			:= $(PREFIX)gcc
-CXX			:= $(PREFIX)g++
-AR			:= $(PREFIX)ar
-OBJCOPY		:= $(PREFIX)objcopy
-LD			:= $(PREFIX)g++
-AS			:= $(PREFIX)g++
-
+PREFIX		:= $(DEVKITARM)/bin/arm-none-eabi-
+ifneq (,$(findstring NT,$(UNAME)))
+	CC			:= $(PREFIX)gcc.exe
+	CXX			:= $(PREFIX)g++.exe
+	AR			:= $(PREFIX)ar.exe
+	OBJCOPY		:= $(PREFIX)objcopy.exe
+	LD			:= $(PREFIX)g++.exe
+	AS			:= $(PREFIX)gcc.exe
+endif
+CC			?= $(PREFIX)gcc
+CXX			?= $(PREFIX)g++
+AR			?= $(PREFIX)ar
+OBJCOPY		?= $(PREFIX)objcopy
+LD			?= $(PREFIX)g++
+AS			?= $(PREFIX)gcc
 #---------------------------------------------------------------------------------
 # linker script
 #---------------------------------------------------------------------------------
@@ -47,7 +54,9 @@ export ROOT	:= $(CURDIR)
 all:
 	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
 	@$(MAKE) -C ../libios --no-print-directory -f Makefile
+	@echo a
 	@$(MAKE) -C libmega --no-print-directory -f Makefile.ios
+	@echo b
 	@$(MAKE) -C libmega --no-print-directory -f Makefile.wii
 	@$(MAKE) -C $(BUILD) --no-print-directory -f $(CURDIR)/Makefile BUILDING=all
 	
@@ -96,7 +105,7 @@ INCLUDE	:=			$(foreach dir,$(INCLUDES),-I$(ROOT)/$(dir)) \
 #---------------------------------------------------------------------------------
 LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) 
 
-ARCH	=	-mcpu=arm926ej-s -mtune=arm926ej-s -mthumb -mthumb-interwork -mbig-endian
+ARCH	=	-march=armv5te -mtune=arm926ej-s
 
 CFLAGS	=	-g $(ARCH) $(INCLUDE) -fno-strict-aliasing -Wall -O2 -fomit-frame-pointer -ffast-math -fverbose-asm \
 			-Wpointer-arith -Winline -Wundef -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti

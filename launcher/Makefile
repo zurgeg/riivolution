@@ -25,9 +25,8 @@ INCLUDES	:=	include lib/libwiigui lib \
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-CXXFLAGS	=	-save-temps -Xassembler -aln=$@.lst -I$(PORTLIBS_PATH)/ppc/include/freetype2 -Wfatal-errors $(CFLAGS)
-
-CFLAGS		=	-fdata-sections -ffunction-sections -g -O2 -Wall $(MACHDEP) $(INCLUDE) $(LIBS) 
+CFLAGS		=	-fdata-sections -ffunction-sections -g -O2 -Wall $(MACHDEP) $(INCLUDE) $(LIBS)
+CXXFLAGS	=	-save-temps -Xassembler -aln=$@.lst -I$(PORTLIBS_PATH)/ppc/include/freetype2 -Wfatal-errors $(CFLAGS) -DINSTALLER_AVAILABLE
 
 ifneq (,$(USE_INSTALLER))
 	CFLAGS += -DINSTALLER_AVAILABLE
