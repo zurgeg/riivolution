@@ -172,9 +172,10 @@ int Haxx_Init()
 		return -1;
 
 	usleep(4000);
+	#ifdef USE_PROBLEMATIC_CODE
 	if (load_module_code(filemodule_dat, filemodule_dat_size) <= 0)
 		return -1;
-
+	
 	printf("Riiv filemodule loaded\n");
 
 	usleep(4000);
@@ -182,7 +183,7 @@ int Haxx_Init()
 		return -1;
 
 	printf("Riiv dipmodule loaded\n");
-
+	#endif
 	usleep(4000);
 
 #ifdef DEBUGGER

@@ -19,6 +19,7 @@
 int main(int argc, char *argv[])
 {
 	Initialise();
+	size_t font_ttf_size = 11;
 
 #if 0
 // TODO: Clean this up

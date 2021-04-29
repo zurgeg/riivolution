@@ -1,8 +1,12 @@
 #include "menu.h"
 #include "launcher.h"
+ // Didn't work on latest devkitpro
 #include "haxx.h"
-#include "riivolution_config.h"
+#ifdef INSTALLER_AVAILABLE
 #include "installer.h"
+#endif
+#include "riivolution_config.h"
+
 #include "init.h"
 
 #include <unistd.h>
@@ -358,7 +362,6 @@ const char * int_to_char(int number){
 	sprintf(bufferlol, "%d", number);
 	return (const char *)bufferlol;
 }
-
 Menus::Enum MenuMount()
 {
 	HaltGui();
@@ -519,7 +522,9 @@ Menus::Enum MenuMain()
 	buttons.GetButton(0)->SetTrigger(&Trigger[Triggers::Home]);
 	buttons.SetButton(1, "Launch", ButtonList::LaunchImage);
 	buttons.GetButton(1)->SetState(STATE_SELECTED, 0);
+	#ifdef INSTALLER_AVAILABLE
 	buttons.SetButton(2, installed ? "Remove" : "Install", ButtonList::UninstallImage);
+	#endif
 	ResumeGui();
 
 	PreparePages();
@@ -536,11 +541,14 @@ Menus::Enum MenuMain()
 				return Menus::Exit;
 			case 1:
 				return Menus::Launch;
+			#ifdef INSTALLER_AVAILABLE
 			case 2:
+				
 				if (installed)
 					return Menus::Uninstall;
 				else
 					return Menus::Install;
+			#endif
 		}
 
 		CheckShutdown();
@@ -549,7 +557,7 @@ Menus::Enum MenuMain()
 			return Menus::Init;
 	}
 }
-
+#ifdef INSTALLER_AVAILABLE
 Menus::Enum MenuInstall()
 {
 	HaltGui(); Subtitle->SetText("Installing..."); ResumeGui();
@@ -588,7 +596,7 @@ Menus::Enum MenuUninstall()
 
 	return Menus::Main;
 }
-
+#endif
 Menus::Enum MenuLaunch()
 {
 	HaltGui(); Subtitle->SetText("Loading..."); ResumeGui();
