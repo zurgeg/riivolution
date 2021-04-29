@@ -171,9 +171,7 @@ int Haxx_Init()
 	if (!do_exploit())
 		printf("exploit failed!\n")
 		return -1;
-	#endif
 	usleep(4000);
-	#ifdef USE_PROBLEMATIC_CODE
 	if (load_module_code(filemodule_dat, filemodule_dat_size) <= 0)
 		return -1;
 	
@@ -1616,6 +1614,7 @@ static bool do_exploit()
 			//seeprom_write(korean_key, 0x74, 16);
 			//seeprom_write(null_key, 0x74, 16);
 		}
+		#ifdef USE_PROBLEMATIC_CODE
 		if (!patch_failed)
 		{
 			new_ios = prepare_new_kernel(HAXX_IOS);
@@ -1623,7 +1622,7 @@ static bool do_exploit()
 			if (patch_failed)
 				printf("Failed to prepare new kernel\n");
 		}
-
+		
 		if (!patch_failed)
 		{
 			shutdown_for_reload();
@@ -1637,14 +1636,16 @@ static bool do_exploit()
 			} else
 				printf("Loaded patched IOS\n");
 		}
+		#endif
 
 		if (!patch_failed)
 			patch_failed = !do_patch(NAND_PERMS_INDEX);
 
 		// if sneek was found, we need to reload IOS again before doing anything else
 		// to make sure we have clean modules
+		#ifdef USE_PROBLEMATIC_CODE
 		patch_failed |= sneek;
-
+		
 		if (!patch_failed)
 		{
 			usleep(4000);
@@ -1659,7 +1660,7 @@ static bool do_exploit()
 			} else
 				printf("SDHC loaded\n");
 		}
-
+		#endif
 #ifndef YARR
 		if (!patch_failed)
 			patch_failed = !do_sig_check_patch();
